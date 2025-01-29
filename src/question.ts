@@ -82,7 +82,7 @@ export class Question {
         inputText.name = `${this.questionId}-title`;
         inputText.value = this.questionMap.get(this.questionId)?.title as string;
         inputText.addEventListener("change", this.#handleInputChange.bind(this));
-        const controlDropdown = this.#getControlsDropdown(this.targetType);
+        const controlDropdown = this.#getControlsDropdown();
         questionDescription.append(inputText,controlDropdown,questionControls);
         questionBox.appendChild(questionDescription);
         this.questionControls = questionControls;
@@ -202,7 +202,7 @@ export class Question {
      * @returns Select Element
      * Builds the select element and returns it
      */
-    #getControlsDropdown(target?:string): HTMLSelectElement {
+    #getControlsDropdown(): HTMLSelectElement {
         const options: ISelectOption[] = QUESTIONS_CONTROL_OPTIONS;
 
         const selectFormDropdown = Util.selectElement({
