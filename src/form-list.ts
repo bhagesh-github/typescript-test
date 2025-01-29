@@ -33,13 +33,6 @@ export class FormList {
       }
     }
   }
-  #showAllForms(event: Event) {
-    alert((event.target as HTMLInputElement).checked);
-  }
-  #onFormSelection(event: Event) {
-    const targetElement: HTMLSelectElement = event.target as HTMLSelectElement;
-    alert(targetElement!.value);
-  }
   /**
    * render method creates the HTML for Form list Class
    */
