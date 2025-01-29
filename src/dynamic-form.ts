@@ -1,8 +1,10 @@
+import { Question, QuestionData } from "./question";
 import { Util } from "./util";
 
 type FormData = {
     id: string,
-    intro: FormIntro
+    intro: FormIntro,
+    questions?: QuestionData[];
 }
 type FormIntro = {
     title: string,
@@ -11,6 +13,8 @@ type FormIntro = {
 export class DynamicForm {
     formId: string = '';
     formMap: Map<string,FormData> = new Map<string, FormData>();
+    questionsMap: Map<string, Question> = new Map<string, Question>();
+    questionWrapper: HTMLDivElement = {} as HTMLDivElement;
     constructor() {
         this.formId = window.crypto.randomUUID();
         const initialValue: FormData = {
@@ -18,7 +22,8 @@ export class DynamicForm {
             intro: {
                 title: "",
                 description: ""
-            }
+            },
+            questions:[]
         }
         this.formMap.set(this.formId,initialValue);
     }
@@ -39,6 +44,10 @@ export class DynamicForm {
             type:'div',
             classes:['form-box']
         }) as HTMLDivElement;
+        const questionWrapper: HTMLDivElement = Util.getHtml({
+            type:'div',
+            classes:['questions-wrapper']
+        }) as HTMLDivElement;
         const form: HTMLFormElement = Util.getHtml({
             type:'form',
             id:this.formId
@@ -46,16 +55,40 @@ export class DynamicForm {
         form.addEventListener("submit", this.#submitForm.bind(this));
         form.classList.add("form-box__form");
         this.#createFormDescription(form);
+        const addQuestionBtn: HTMLButtonElement = Util.getHtml({
+            type:'button',
+            classes:["btn", "btn--secondary"],
+            textContent:"Add Question"
+        }) as HTMLButtonElement;
         const submitBtn: HTMLButtonElement = Util.getHtml({
             type:'button',
             classes:["btn", "btn--primary"],
             textContent:"Submit"
         }) as HTMLButtonElement;
+        addQuestionBtn.type = "button";
+        addQuestionBtn.addEventListener("click", this.#addQuestion.bind(this))
         submitBtn.type = "submit";
-        form.appendChild(submitBtn);
+        this.questionWrapper = questionWrapper;
+        form.append(questionWrapper, addQuestionBtn, submitBtn);
         formBox.appendChild(form);
+        if(this.questionsMap.size > 0) {
+            this.#renderQuestions();
+        }
         return formBox;
     }
+    #addQuestion() {
+        const question = new Question();
+        this.questionsMap.set(question.questionId, question);
+        this.#renderQuestions();
+    }
+    #renderQuestions() {
+        this.questionWrapper.innerHTML = "";
+        if(this.questionsMap.size > 0) {
+          for(let value of this.questionsMap.values()) {
+            this.questionWrapper.append(value.render());
+          }
+        }
+      }
     #createFormDescription(form: HTMLFormElement): void {
         const inputWrapper: HTMLDivElement = this.#getInput();
         const textAreaWrapper: HTMLDivElement = this.#getTextArea();

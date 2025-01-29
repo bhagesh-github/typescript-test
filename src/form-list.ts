@@ -1,4 +1,5 @@
 import { DynamicForm } from "./dynamic-form";
+import { ISelect, ISelectOption } from "./interfaces";
 import { Util } from "./util";
 
 export class FormList {
@@ -89,22 +90,22 @@ export class FormList {
    * from which user will select the form of choice
    */
   #createFormSelectionDropdown(topPanel: HTMLDivElement) {
-    const selectFormDropdown: HTMLSelectElement = Util.getHtml({
-      type:'select',
-      classes:['btn'],
-      id:'selectform'
-    }) as HTMLSelectElement;
-    const disabledOption = document.createElement('option');
-    disabledOption.setAttribute('selected', 'selected');
-    disabledOption.setAttribute('disabled', 'disabled');
-    disabledOption.text = 'Select Form';
-    selectFormDropdown.appendChild(disabledOption);
-    const option = document.createElement('option');
-    option.text = 'Sample Form';
-    option.value = '1234';
-    selectFormDropdown.name = 'selectform';
+    const options: ISelectOption[] = [{
+      text:'Select Form',
+      value:'',
+      disabled:true,
+      selected:true
+    },{
+      text:'Sample Form',
+      value:'1234'
+    }];
+    const selectParams:ISelect = {
+      options,
+      name:"selectform",
+      id:"selectform"
+    }
+    const selectFormDropdown: HTMLSelectElement = Util.selectElement(selectParams) as HTMLSelectElement;
     selectFormDropdown.addEventListener('change', this.#onFormSelection);
-    selectFormDropdown.appendChild(option);
     topPanel.appendChild(selectFormDropdown);
   }
   /**
