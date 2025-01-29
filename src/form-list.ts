@@ -1,11 +1,12 @@
-import { DynamicForm } from "./dynamic-form";
+import { DynamicForm, FormData } from "./dynamic-form";
 import { ISelect, ISelectOption } from "./interfaces";
 import { Util } from "./util";
 
 export class FormList {
-  forms = new Map();
+  forms:Map<string, DynamicForm> = new Map<string, DynamicForm>();
   private static instance: FormList;
   private formsWrapper: HTMLDivElement = {} as HTMLDivElement;
+  storeForms = localStorage.getItem('forms');
   constructor() {
     this.forms = new Map<string, DynamicForm>();
   }
@@ -19,8 +20,8 @@ export class FormList {
     }
     return this.instance;
   }
-  #addForm() {
-    const dynamicForm = new DynamicForm();
+  #addForm(formData?: FormData) {
+    const dynamicForm = new DynamicForm(formData);
     this.forms.set(dynamicForm.formId, dynamicForm);
     this.#renderForms();
   }
@@ -28,7 +29,7 @@ export class FormList {
     this.formsWrapper.innerHTML = "";
     if(this.forms.size > 0) {
       for(let value of this.forms.values()) {
-        this.formsWrapper.append(value.render());
+        this.formsWrapper.appendChild(value.render());
       }
     }
   }
@@ -54,6 +55,12 @@ export class FormList {
     rootElement.appendChild(formsContainer);
     this.#createTopPanel(formsContainer);
     this.#createFormsWrapper(formsContainer);
+    if(this.storeForms && this.storeForms.length) {
+      const forms:FormData[] = JSON.parse(this.storeForms);
+      for(let form of forms) {
+        this.#addForm(form)
+      }
+    }
   }
   /**
    * createTopPanel method creates the HTML for top panel
@@ -66,8 +73,16 @@ export class FormList {
       id:'forms-container__top-panel'
     }) as HTMLDivElement;
     formsContainer.appendChild(topPanel);
-    this.#createShowAllFormCheckbox(topPanel);
-    this.#createFormSelectionDropdown(topPanel);
+    // this.#createShowAllFormCheckbox(topPanel);
+    // this.#createFormSelectionDropdown(topPanel);
+    topPanel.appendChild((Util.getHtml({
+      type:'h1',
+      textContent:"Test Google Forms"
+    }) as HTMLHeadingElement))
+    topPanel.appendChild((Util.getHtml({
+      type:'p',
+      textContent:"CLick on below button to add forms on screen"
+    }) as HTMLParagraphElement))
     this.#createAddFormButton(topPanel);
   }
   /**
@@ -82,7 +97,7 @@ export class FormList {
       textContent:'Add Form'
     }) as HTMLButtonElement;
     addFormBtn.type = 'button';
-    addFormBtn.addEventListener('click', this.#addForm.bind(this));
+    addFormBtn.addEventListener('click', this.#addForm.bind(this, undefined));
     topPanel.append(addFormBtn);
   }
   /**
@@ -105,7 +120,7 @@ export class FormList {
       id:"selectform"
     }
     const selectFormDropdown: HTMLSelectElement = Util.selectElement(selectParams) as HTMLSelectElement;
-    selectFormDropdown.addEventListener('change', this.#onFormSelection);
+    selectFormDropdown.addEventListener('change', this.#onFormSelection.bind(this));
     topPanel.appendChild(selectFormDropdown);
   }
   /**

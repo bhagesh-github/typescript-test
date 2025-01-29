@@ -1,7 +1,7 @@
 import { Question, QuestionData } from "./question";
 import { Util } from "./util";
 
-type FormData = {
+export type FormData = {
     id: string,
     intro: FormIntro,
     questions?: QuestionData[];
@@ -15,15 +15,22 @@ export class DynamicForm {
     formMap: Map<string,FormData> = new Map<string, FormData>();
     questionsMap: Map<string, Question> = new Map<string, Question>();
     questionWrapper: HTMLDivElement = {} as HTMLDivElement;
-    constructor() {
-        this.formId = window.crypto.randomUUID();
-        const initialValue: FormData = {
-            id: this.formId,
-            intro: {
-                title: "",
-                description: ""
-            },
-            questions:[]
+    constructor(params?:FormData) {
+        let initialValue: FormData = {} as FormData;
+        if(params) {
+            initialValue.id = params.id,
+            initialValue.intro = params.intro;
+            initialValue.questions = params.questions;
+        } else {
+            this.formId = window.crypto.randomUUID();
+            initialValue = {
+                id: this.formId,
+                intro: {
+                    title: "",
+                    description: ""
+                },
+                questions:[]
+            }
         }
         this.formMap.set(this.formId,initialValue);
     }
@@ -33,11 +40,15 @@ export class DynamicForm {
     #submitForm(event: Event):void {
         event.preventDefault();
         const allForms = JSON.parse(window.localStorage.getItem("forms")!) || [];
-        console.log(allForms.find((item: any) => JSON.parse(item).id === this.formId));
-        if(allForms) {
-            allForms.push(JSON.stringify(this.getJson()));
+        const foundForm = allForms.findIndex((form: FormData) => form.id === this.formId);
+        const formJson = this.getJson();
+        if(foundForm > -1) {
+            allForms[foundForm] = formJson; 
+        } else {
+            allForms.push(formJson);
         }
-       localStorage.setItem("forms", JSON.stringify(allForms));
+        localStorage.setItem("forms", JSON.stringify(allForms));
+        // console.log(this.questionsMap)
     }
     #createFormLayout(): HTMLDivElement {
         const formBox: HTMLDivElement = Util.getHtml({
@@ -66,18 +77,21 @@ export class DynamicForm {
             textContent:"Submit"
         }) as HTMLButtonElement;
         addQuestionBtn.type = "button";
-        addQuestionBtn.addEventListener("click", this.#addQuestion.bind(this))
+        addQuestionBtn.addEventListener("click", this.#addQuestion.bind(this, undefined))
         submitBtn.type = "submit";
         this.questionWrapper = questionWrapper;
         form.append(questionWrapper, addQuestionBtn, submitBtn);
         formBox.appendChild(form);
-        if(this.questionsMap.size > 0) {
-            this.#renderQuestions();
+        if(this.formMap.get(this.formId)?.questions!.length) {
+            const questions:QuestionData[] = this.formMap.get(this.formId)?.questions!;
+            for(let question of questions) {
+                this.#addQuestion(question);
+            }
         }
         return formBox;
     }
-    #addQuestion() {
-        const question = new Question();
+    #addQuestion(quest?: QuestionData) {
+        const question = new Question(quest);
         this.questionsMap.set(question.questionId, question);
         this.#renderQuestions();
     }
@@ -139,8 +153,16 @@ export class DynamicForm {
         textAreaWrapper.appendChild(textarea);
         return textAreaWrapper;
     }
-    protected getJson():FormData {
-        return this.formMap.get(this.formId)!;
+    getJson(): FormData{
+        const formData = this.formMap.get(this.formId) as FormData;
+        const questions = [];
+        if(this.questionsMap.size > 0) {
+            for(let [key, value] of this.questionsMap) {
+                questions.push(value.questionMap.get(key));
+            }
+        }
+        formData.questions = questions as QuestionData[];
+        return formData;
     }
 
 

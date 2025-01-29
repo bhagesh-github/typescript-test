@@ -2,6 +2,12 @@ import { ISelectOption } from "./interfaces";
 
 export const QUESTIONS_CONTROL_OPTIONS: ISelectOption[] = [
     {
+        value: "",
+        text:"Select Control",
+        disabled: true,
+        selected: true
+    },
+    {
         value: "checkbox",
         text:"Checkbox"
     },
@@ -16,9 +22,5 @@ export const QUESTIONS_CONTROL_OPTIONS: ISelectOption[] = [
     {
         value: "textarea",
         text:"Description"
-    },
-    {
-        value: "text",
-        text:"Short Description"
     }
 ]
