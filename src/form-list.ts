@@ -1,8 +1,12 @@
+import { DynamicForm } from "./dynamic-form";
+import { Util } from "./util";
+
 export class FormList {
-  forms: Map<string, any>;
+  forms = new Map();
   private static instance: FormList;
-  private constructor() {
-    this.forms = new Map<string, any>();
+  private formsWrapper: HTMLDivElement = {} as HTMLDivElement;
+  constructor() {
+    this.forms = new Map<string, DynamicForm>();
   }
   /**
    * Create the instance of the class
@@ -15,7 +19,17 @@ export class FormList {
     return this.instance;
   }
   #addForm() {
-    alert('clicked');
+    const dynamicForm = new DynamicForm();
+    this.forms.set(dynamicForm.formId, dynamicForm);
+    this.#renderForms();
+  }
+  #renderForms() {
+    this.formsWrapper.innerHTML = "";
+    if(this.forms.size > 0) {
+      for(let value of this.forms.values()) {
+        this.formsWrapper.append(value.render());
+      }
+    }
   }
   #showAllForms(event: Event) {
     alert((event.target as HTMLInputElement).checked);
@@ -31,21 +45,25 @@ export class FormList {
     const rootElement: HTMLDivElement =
       document.querySelector<HTMLDivElement>('#app')!;
     rootElement.innerHTML = '';
-    const formsContainer = document.createElement('div');
-    formsContainer.classList.add('forms-container');
-    formsContainer.id = 'forms-container';
+    const formsContainer = Util.getHtml({
+      type:'div',
+      classes:['forms-container'],
+      id:'forms-container'
+    }) as HTMLDivElement;
     rootElement.appendChild(formsContainer);
     this.#createTopPanel(formsContainer);
+    this.#createFormsWrapper(formsContainer);
   }
   /**
    * createTopPanel method creates the HTML for top panel
    * which consists of add form button/ select form dropdwon/ show all forms checkbox
    */
   #createTopPanel(formsContainer: HTMLDivElement) {
-    const topPanel = document.createElement('div');
-    topPanel.classList.add('forms-container__top-panel');
-    topPanel.id = 'forms-container__top-panel';
-    ('');
+    const topPanel: HTMLDivElement = Util.getHtml({
+      type:'div',
+      classes:['forms-container__top-panel'],
+      id:'forms-container__top-panel'
+    }) as HTMLDivElement;
     formsContainer.appendChild(topPanel);
     this.#createShowAllFormCheckbox(topPanel);
     this.#createFormSelectionDropdown(topPanel);
@@ -56,12 +74,14 @@ export class FormList {
    * from which user will add the form on the screen
    */
   #createAddFormButton(topPanel: HTMLDivElement) {
-    const addFormBtn = document.createElement('button');
+    const addFormBtn: HTMLButtonElement = Util.getHtml({
+      type:'button',
+      classes:['btn'],
+      id:'add-form-btn',
+      textContent:'Add Form'
+    }) as HTMLButtonElement;
     addFormBtn.type = 'button';
-    addFormBtn.textContent = 'Add Form';
-    addFormBtn.classList.add('btn');
-    addFormBtn.id = 'add-form-btn';
-    addFormBtn.addEventListener('click', this.#addForm);
+    addFormBtn.addEventListener('click', this.#addForm.bind(this));
     topPanel.append(addFormBtn);
   }
   /**
@@ -69,7 +89,11 @@ export class FormList {
    * from which user will select the form of choice
    */
   #createFormSelectionDropdown(topPanel: HTMLDivElement) {
-    const selectFormDropdown = document.createElement('select');
+    const selectFormDropdown: HTMLSelectElement = Util.getHtml({
+      type:'select',
+      classes:['btn'],
+      id:'selectform'
+    }) as HTMLSelectElement;
     const disabledOption = document.createElement('option');
     disabledOption.setAttribute('selected', 'selected');
     disabledOption.setAttribute('disabled', 'disabled');
@@ -79,7 +103,6 @@ export class FormList {
     option.text = 'Sample Form';
     option.value = '1234';
     selectFormDropdown.name = 'selectform';
-    selectFormDropdown.id = 'selectform';
     selectFormDropdown.addEventListener('change', this.#onFormSelection);
     selectFormDropdown.appendChild(option);
     topPanel.appendChild(selectFormDropdown);
@@ -89,16 +112,33 @@ export class FormList {
    * from which user can see all the forms by checking it
    */
   #createShowAllFormCheckbox(topPanel: HTMLDivElement) {
-    const showAllCheckboxLabel: HTMLLabelElement =
-      document.createElement('label');
-    showAllCheckboxLabel.textContent = 'Show All Forms';
-    showAllCheckboxLabel.classList.add('form-label');
-    const showAllCheckbox: HTMLInputElement = document.createElement('input');
+    const showAllCheckboxLabel: HTMLLabelElement = Util.getHtml({
+      type:'label',
+      classes:['form-label'],
+      textContent:'Show All Forms'
+    }) as HTMLLabelElement;
+    const showAllCheckbox: HTMLInputElement = Util.getHtml({
+      type:'input',
+      classes:['checkbox'],
+    }) as HTMLInputElement;
     showAllCheckbox.type = 'checkbox';
     showAllCheckbox.name = 'showAllForm';
-    showAllCheckbox.classList.add('checkbox');
     showAllCheckbox.addEventListener('click', this.#showAllForms);
     showAllCheckboxLabel.appendChild(showAllCheckbox);
     topPanel.appendChild(showAllCheckboxLabel);
+  }
+  /**
+   * 
+   * @param formsContainer HTMLDivElement
+   * It creates the wrapper element which will hold the forms
+   */
+  #createFormsWrapper(formsContainer: HTMLDivElement) {
+    const formsWrapper: HTMLDivElement = Util.getHtml({
+      type:'div',
+      classes:['forms-container__forms-wrapper'],
+      id:'forms-container__forms-wrapper'
+    }) as HTMLDivElement;
+    formsContainer.appendChild(formsWrapper);
+    this.formsWrapper = formsWrapper;
   }
 }
