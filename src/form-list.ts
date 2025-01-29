@@ -73,8 +73,6 @@ export class FormList {
       id:'forms-container__top-panel'
     }) as HTMLDivElement;
     formsContainer.appendChild(topPanel);
-    // this.#createShowAllFormCheckbox(topPanel);
-    // this.#createFormSelectionDropdown(topPanel);
     topPanel.appendChild((Util.getHtml({
       type:'h1',
       textContent:"Test Google Forms"
@@ -100,49 +98,7 @@ export class FormList {
     addFormBtn.addEventListener('click', this.#addForm.bind(this, undefined));
     topPanel.append(addFormBtn);
   }
-  /**
-   * createFormSelectionDropdown method creates the HTML for select form dropdwon
-   * from which user will select the form of choice
-   */
-  // #createFormSelectionDropdown(topPanel: HTMLDivElement) {
-  //   const options: ISelectOption[] = [{
-  //     text:'Select Form',
-  //     value:'',
-  //     disabled:true,
-  //     selected:true
-  //   },{
-  //     text:'Sample Form',
-  //     value:'1234'
-  //   }];
-  //   const selectParams:ISelect = {
-  //     options,
-  //     name:"selectform",
-  //     id:"selectform"
-  //   }
-  //   const selectFormDropdown: HTMLSelectElement = Util.selectElement(selectParams) as HTMLSelectElement;
-  //   selectFormDropdown.addEventListener('change', this.#onFormSelection.bind(this));
-  //   topPanel.appendChild(selectFormDropdown);
-  // }
-  /**
-   * createFormSelectionDropdown method creates the HTML for show all forms checkbox
-   * from which user can see all the forms by checking it
-   */
-  // #createShowAllFormCheckbox(topPanel: HTMLDivElement) {
-  //   const showAllCheckboxLabel: HTMLLabelElement = Util.getHtml({
-  //     type:'label',
-  //     classes:['form-label'],
-  //     textContent:'Show All Forms'
-  //   }) as HTMLLabelElement;
-  //   const showAllCheckbox: HTMLInputElement = Util.getHtml({
-  //     type:'input',
-  //     classes:['checkbox'],
-  //   }) as HTMLInputElement;
-  //   showAllCheckbox.type = 'checkbox';
-  //   showAllCheckbox.name = 'showAllForm';
-  //   showAllCheckbox.addEventListener('click', this.#showAllForms);
-  //   showAllCheckboxLabel.appendChild(showAllCheckbox);
-  //   topPanel.appendChild(showAllCheckboxLabel);
-  // }
+  
   /**
    * 
    * @param formsContainer HTMLDivElement
