@@ -1,5 +1,4 @@
 import { DynamicForm, FormData } from "./dynamic-form";
-import { ISelect, ISelectOption } from "./interfaces";
 import { Util } from "./util";
 
 export class FormList {
